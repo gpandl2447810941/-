@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# WorkBuddy internal
+.workbuddy/
+
+# PyInstaller build artifacts
+build/
+dist/
+exe_build/
+__pycache__/
+*.pyc
+*.pyz
+*.spec.bak
+
+# NSIS / installer output (can be regenerated)
+output/
+
+# Generated binaries
+*.exe
+*.app
+*.dmg
+
+# Logs
+*.log

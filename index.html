@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>创为转Tray机操作SOP</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    --step-bg: #eff6ff;
+    --warn: #f59e0b;
+    --warn-bg: #fffbeb;
+    --success: #10b981;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --sub-bg: #f0f9ff;
+    --sub-border: #bae6fd;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-hover: 0 8px 25px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+  }
+  .lang-toggle {
+    position: absolute; top: 20px; right: 24px; display: flex;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 24px; overflow: hidden;
+  }
+  .lang-toggle button {
+    padding: 6px 16px; border: none; background: transparent;
+    color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.85rem; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .lang-toggle button.active { background: white; color: #2563eb; font-weight: 600; }
+  .lang-toggle button:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
+
+  .header {
+    position: relative; background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    color: white; padding: 48px 24px 40px; text-align: center;
+  }
+  .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+  .header .subtitle { font-size: 0.95rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block; margin-top: 16px; padding: 6px 18px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px; font-size: 0.85rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px 0 8px; display: flex; gap: 24px; }
+  .sidebar {
+    width: 230px; flex-shrink: 0; position: sticky; top: 20px; align-self: flex-start;
+    max-height: calc(100vh - 40px); overflow-y: auto; padding: 24px 10px 24px 0;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .sidebar h3 {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-secondary); margin-bottom: 12px; padding-left: 12px;
+  }
+  .sidebar::-webkit-scrollbar { width: 5px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .sidebar ul { list-style: none; }
+  .sidebar li { margin-bottom: 4px; }
+  .sidebar a {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+    border-radius: 8px; text-decoration: none; color: var(--text-secondary);
+    font-size: 0.88rem; transition: all 0.2s;
+  }
+  .sidebar a:hover { background: var(--primary-light); color: var(--primary); }
+  .sidebar a.active { background: var(--primary); color: white; }
+  .sidebar a .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 6px; background: var(--border);
+    font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+  }
+  .sidebar a.active .num { background: rgba(255,255,255,0.25); }
+  .sidebar .sub-nav { padding-left: 30px; }
+  .sidebar .sub-nav a { font-size: 0.82rem; padding: 6px 10px; color: var(--text-secondary); }
+  .sidebar .sub-nav a .num { width: 18px; height: 18px; font-size: 0.68rem; background: var(--primary-light); color: var(--primary); }
+  /* Sidebar collapsible tree */
+  .sidebar .nav-row { display: flex; align-items: center; }
+  .sidebar .nav-row a { flex: 1; }
+  .sidebar .nav-toggle {
+    cursor: pointer; padding: 6px 8px; font-size: 0.65rem;
+    color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0;
+  }
+  .sidebar .has-children > .nav-children {
+    margin-left: 16px; border-left: 2px solid var(--border);
+    padding-left: 6px; margin-top: 4px;
+  }
+  .sidebar .has-children > .nav-children li { margin-bottom: 2px; }
+  .sidebar .has-children > .nav-children a {
+    font-size: 0.82rem; padding: 6px 10px; color: var(--text-secondary);
+  }
+  .sidebar .has-children > .nav-children a .num {
+    width: 18px; height: 18px; font-size: 0.68rem;
+    background: var(--primary-light); color: var(--primary);
+  }
+  .sidebar .has-children.collapsed > .nav-children { display: none; }
+  .sidebar .has-children.collapsed > .nav-row .nav-toggle { transform: rotate(-90deg); }
+  @media (max-width: 768px) {
+    .sidebar .has-children > .nav-children { margin-left: 0; border-left: none; padding-left: 0; }
+    .sidebar .nav-toggle { display: none; }
+  }
+
+  .main { flex: 1; min-width: 0; padding: 24px 0 60px; }
+
+  /* Reminder box inside step 3 */
+  .reminder-box {
+    background: var(--danger-bg); border: 2px solid #fecaca;
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+  }
+  .reminder-box .reminder-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    padding-bottom: 10px; border-bottom: 2px solid #fecaca;
+  }
+  .reminder-box .reminder-icon {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--danger);
+    color: white; font-size: 1rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .reminder-box .reminder-title { font-size: 1.05rem; font-weight: 700; color: #991b1b; }
+  .reminder-content { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .reminder-content .rc-text { flex: 1; min-width: 200px; font-size: 0.95rem; color: #7f1d1d; font-weight: 500; }
+  .reminder-content .rc-img {
+    position: relative; border-radius: 8px; overflow: hidden;
+    border: 1px solid #fecaca; max-width: 400px; flex-shrink: 0;
+  }
+  .reminder-content .rc-img img { width: 100%; height: auto; display: block; cursor: zoom-in; }
+  .reminder-content .rc-img:hover img { transform: scale(1.02); }
+
+  .step-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px; margin-bottom: 24px;
+    box-shadow: var(--shadow); transition: box-shadow 0.2s;
+  }
+  .step-card:hover { box-shadow: var(--shadow-hover); }
+  .step-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 2px solid var(--border);
+  }
+  .step-number {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 10px; background: var(--primary);
+    color: white; font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+  }
+  .step-title { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+
+  .instructions { list-style: none; counter-reset: step-counter; }
+  .instructions li {
+    position: relative; padding: 10px 0 10px 38px; font-size: 0.95rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .instructions li:last-child { border-bottom: none; }
+  .instructions li::before {
+    content: counter(step-counter); counter-increment: step-counter;
+    position: absolute; left: 0; top: 10px; width: 26px; height: 26px;
+    border-radius: 50%; background: var(--step-bg); color: var(--primary);
+    font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Sub-section within step 3 */
+  .sub-section {
+    margin-top: 28px; background: var(--sub-bg);
+    border: 1px solid var(--sub-border); border-radius: 12px; padding: 24px;
+  }
+  .sub-section .sub-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 2px solid var(--sub-border);
+  }
+  .sub-section .sub-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px; background: #0284c7; color: white;
+    font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+  }
+  .sub-section .sub-title { font-size: 1.1rem; font-weight: 700; color: #075985; }
+  .sub-section .instructions li::before {
+    background: #e0f2fe; color: #0284c7;
+  }
+
+  .image-gallery {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; margin-top: 20px;
+  }
+  .image-gallery.single { grid-template-columns: 1fr; max-width: 600px; }
+  .image-item {
+    position: relative; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); background: #f8fafc;
+  }
+  .image-item img { width: 100%; height: auto; display: block; cursor: zoom-in; transition: transform 0.3s; }
+  .image-item:hover img { transform: scale(1.02); }
+
+  .modal {
+    display: none; position: fixed; z-index: 999; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85); align-items: center; justify-content: center; cursor: zoom-out;
+  }
+  .modal.active { display: flex; }
+  .modal img { max-width: 92%; max-height: 92%; border-radius: 8px; }
+
+  .password-group { margin-top: 16px; }
+  .password-group h4 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600; }
+  .password-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    padding: 10px 16px; background: var(--warn-bg); border: 1px solid #fde68a;
+    border-radius: 8px; font-size: 0.9rem;
+  }
+  .password-row .label { color: var(--warn); font-weight: 600; white-space: nowrap; min-width: 85px; }
+  .password-row code {
+    font-family: "SF Mono", Monaco, monospace; background: #fef3c7;
+    padding: 3px 10px; border-radius: 4px; color: #92400e; user-select: all;
+    flex: 1; text-align: center;
+  }
+  .copy-btn {
+    padding: 4px 14px; background: var(--primary); color: white; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 500;
+    white-space: nowrap; transition: all 0.2s;
+  }
+  .copy-btn:hover { background: var(--primary-dark); }
+  .copy-btn.copied { background: var(--success); }
+
+  .note-box {
+    margin-top: 12px; padding: 10px 16px; background: #eff6ff;
+    border-left: 4px solid var(--primary); border-radius: 0 8px 8px 0;
+    font-size: 0.88rem; color: var(--text-secondary);
+  }
+
+  .info-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.92rem; }
+  .info-table th {
+    background: var(--primary-light); color: var(--primary); padding: 10px 16px;
+    text-align: left; font-weight: 600; border-bottom: 2px solid var(--primary);
+  }
+  .info-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  .info-table tr:hover td { background: #f8fafc; }
+  .info-table .code { font-family: "SF Mono", Monaco, monospace; color: var(--primary-dark); font-weight: 600; }
+
+  .footer {
+    text-align: center; padding: 32px 20px; color: var(--text-secondary);
+    font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 20px;
+  }
+  .back-top {
+    position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px;
+    border-radius: 12px; background: var(--primary); color: white; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+    opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 100;
+  }
+  .back-top.visible { opacity: 1; visibility: visible; }
+  .back-top:hover { transform: translateY(-3px); }
+
+
+  /* Collapsible sub-sections */
+  .sub-section .sub-header { cursor: pointer; user-select: none; }
+  .sub-header .collapse-arrow {
+    margin-left: auto; font-size: 0.7rem; color: var(--text-secondary);
+    transition: transform 0.2s; padding: 0 4px;
+  }
+  .sub-section.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .sub-section.collapsed > *:not(.sub-header) { display: none !important; }
+  .sub-section.collapsed .sub-header { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+
+  /* Parts table for step 8 */
+  .parts-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.88rem; }
+  .parts-table th {
+    background: var(--primary-light); color: var(--primary); padding: 10px 14px;
+    text-align: left; font-weight: 600; border-bottom: 2px solid var(--primary);
+    white-space: nowrap;
+  }
+  .parts-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .parts-table tr:hover td { background: #f8fafc; }
+  .parts-table .pno { font-weight: 600; color: var(--primary); text-align: center; width: 50px; }
+  .parts-table .pname { font-weight: 500; white-space: nowrap; }
+  .parts-table .pspec { color: var(--text-secondary); }
+
+  /* Fault code table for step 10 */
+  .fault-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85rem; }
+  .fault-table th {
+    background: #fef2f2; color: #991b1b; padding: 8px 12px; text-align: left;
+    font-weight: 600; border-bottom: 2px solid #fecaca;
+  }
+  .fault-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .fault-table .code { font-family: "SF Mono", Monaco, monospace; font-weight: 700; color: #dc2626; }
+  .fault-table .type-fault { color: #dc2626; font-weight: 600; }
+  .fault-table .type-warn { color: var(--warn); font-weight: 600; }
+  .fault-table .type-mode { color: var(--success); font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; position: relative; top: 0; max-height: none; }
+    .sidebar ul { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sidebar li { margin-bottom: 0; }
+    .sidebar .has-children > .nav-children { margin-left: 0; }
+    .header h1 { font-size: 1.5rem; }
+    .step-card { padding: 20px; }
+    .sub-section { padding: 16px; }
+    .lang-toggle { top: 12px; right: 12px; }
+    .password-row { flex-wrap: wrap; }
+    .password-row .label { min-width: 70px; }
+    .reminder-content { flex-direction: column; }
+    .reminder-content .rc-img { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="lang-toggle">
+    <button class="active" data-lang="zh" onclick="switchLang('zh')">中 文</button>
+    <button data-lang="vi" onclick="switchLang('vi')">Tiếng Việt</button>
+  </div>
+  <h1 data-i18n="title">创为转Tray机操作SOP</h1>
+  <div class="subtitle" data-i18n="subtitle">标准操作流程指引</div>
+  <div class="badge" data-i18n="badge">适用机型：AC308 / AC306 / AC204</div>
+</div>
+
+<div class="container">
+  <nav class="sidebar">
+    <h3 data-i18n="nav_title">操作手册</h3>
+    <ul id="nav-list">
+      <li><a href="#step1" class="active"><span class="num">1</span><span data-i18n="step1">打开软件</span></a></li>
+      <li><a href="#step2"><span class="num">2</span><span data-i18n="step2">启动软件</span></a></li>
+      <li class="has-children">
+        <div class="nav-row">
+          <a href="#step3"><span class="num">3</span><span data-i18n="step3">程序选择</span></a>
+          <span class="nav-toggle" onclick="toggleNav(this)">▼</span>
+        </div>
+        <ul class="nav-children">
+          <li><a href="#step3a"><span class="num">A</span><span data-i18n="step3a_nav">挑选尺寸NG</span></a></li>
+          <li><a href="#step3b"><span class="num">B</span><span data-i18n="step3b_nav">包装程序</span></a></li>
+        </ul>
+      </li>
+      <li><a href="#step4"><span class="num">4</span><span data-i18n="step4">MES模式</span></a></li>
+      <li><a href="#step5"><span class="num">5</span><span data-i18n="step5">点位调整</span></a></li>
+      <li class="has-children">
+        <div class="nav-row">
+          <a href="#step6"><span class="num">6</span><span data-i18n="step6">主界面功能</span></a>
+          <span class="nav-toggle" onclick="toggleNav(this)">▼</span>
+        </div>
+        <ul class="nav-children">
+          <li><a href="#s61"><span class="num">1</span><span data-i18n="s61_nav">红蓝键</span></a></li>
+          <li><a href="#s62"><span class="num">2</span><span data-i18n="s62_nav">移动工作台</span></a></li>
+          <li><a href="#s63"><span class="num">3</span><span data-i18n="s63_nav">过程控制</span></a></li>
+          <li><a href="#s64"><span class="num">4</span><span data-i18n="s64_nav">功能选项</span></a></li>
+          <li><a href="#s65"><span class="num">5</span><span data-i18n="s65_nav">物料进出</span></a></li>
+          <li><a href="#s66"><span class="num">6</span><span data-i18n="s66_nav">物料分类</span></a></li>
+          <li><a href="#s67"><span class="num">7</span><span data-i18n="s67_nav">参数设置</span></a></li>
+        </ul>
+      </li>
+      <li><a href="#step8"><span class="num">8</span><span data-i18n="step8">易损清单</span></a></li>
+      <li class="has-children">
+        <div class="nav-row">
+          <a href="#step9"><span class="num">9</span><span data-i18n="step9">设备保养手册</span></a>
+          <span class="nav-toggle" onclick="toggleNav(this)">▼</span>
+        </div>
+        <ul class="nav-children">
+          <li><a href="#s91"><span class="num">1</span><span data-i18n="s91_nav">前言</span></a></li>
+          <li><a href="#s92"><span class="num">2</span><span data-i18n="s92_nav">保养注意事项</span></a></li>
+          <li><a href="#s93"><span class="num">3</span><span data-i18n="s93_nav">准备工作</span></a></li>
+          <li><a href="#s94"><span class="num">4</span><span data-i18n="s94_nav">4.1 X 轴</span></a></li>
+          <li><a href="#s95"><span class="num">5</span><span data-i18n="s95_nav">4.2 Y 轴</span></a></li>
+          <li><a href="#s96"><span class="num">6</span><span data-i18n="s96_nav">4.3 整组贴装头</span></a></li>
+          <li><a href="#s97"><span class="num">7</span><span data-i18n="s97_nav">4.4 传送轨道</span></a></li>
+          <li><a href="#s98"><span class="num">8</span><span data-i18n="s98_nav">4.5 下CCD相机</span></a></li>
+          <li><a href="#s99"><span class="num">9</span><span data-i18n="s99_nav">4.6 工控机</span></a></li>
+          <li><a href="#s910"><span class="num">10</span><span data-i18n="s910_nav">4.7 电控/气路</span></a></li>
+          <li><a href="#s911"><span class="num">11</span><span data-i18n="s911_nav">4.8 外壳清洁</span></a></li>
+        </ul>
+      </li>
+      <li class="has-children">
+        <div class="nav-row">
+          <a href="#step10"><span class="num">10</span><span data-i18n="step10">驱动器手册</span></a>
+          <span class="nav-toggle" onclick="toggleNav(this)">▼</span>
+        </div>
+        <ul class="nav-children">
+          <li><a href="#s101"><span class="num">1</span><span data-i18n="s101_nav">LED显示代码</span></a></li>
+          <li><a href="#s102"><span class="num">2</span><span data-i18n="s102_nav">故障排除方法</span></a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="main">
+
+    <!-- Step 1 -->
+    <section class="step-card" id="step1">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <div class="step-title" data-i18n="step1">打开软件</div>
+      </div>
+      <ul class="instructions">
+        <li data-i18n="s1_l1">点检桌面软件图标，以管理员的身份运行软件</li>
+      </ul>
+      <div class="password-group">
+        <h4 data-i18n="pwd_title">账号密码</h4>
+        <div class="password-row">
+          <span class="label" data-i18n="pwd_admin">管理员密码</span>
+          <code>admin7ab8cd9ef</code>
+          <button class="copy-btn" onclick="copyPwd(this, 'admin7ab8cd9ef')" data-i18n="copy">复制</button>
+        </div>
+        <div class="password-row">
+          <span class="label" data-i18n="pwd_operator">操作员密码</span>
+          <code>123</code>
+          <button class="copy-btn" onclick="copyPwd(this, '123')" data-i18n="copy">复制</button>
+        </div>
+        <div class="password-row">
+          <span class="label" data-i18n="pwd_engineer">工程师密码</span>
+          <code>eng4a5b6c</code>
+          <button class="copy-btn" onclick="copyPwd(this, 'eng4a5b6c')" data-i18n="copy">复制</button>
+        </div>
+      </div>
+      <div class="note-box" data-i18n="s1_note">AC308、AC306、AC204 同等操作</div>
+      <div class="image-gallery">
+        <div class="image-item"><img src="images/slide2_img0.png" data-i18n-alt="s1_img1" alt="桌面软件图标" onclick="openModal(this)"></div>
+        <div class="image-item"><img src="images/slide2_img1.png" data-i18n-alt="s1_img2" alt="管理员运行" onclick="openModal(this)"></div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="step-card" id="step2">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <div class="step-title" data-i18n="step2">启动软件</div>
+      </div>
+      <ul class="instructions">
+        <li data-i18n="s2_l1">确认机器内部没有产品（如果有产品请手动拿出）</li>
+        <li data-i18n="s2_l2">点击机器回零按钮</li>
+        <li data-i18n="s2_l3">第一次回零会报警，点确定后点击报警复位，然后再点击机器回零</li>
+      </ul>
+      <div class="image-gallery single">
+        <div class="image-item"><img src="images/step2_img.png" data-i18n-alt="s2_img1" alt="启动软件界面" onclick="openModal(this)"></div>
+      </div>
+    </section>
+
+    <!-- Step 3: 程序选择 (with sub-sections A & B) -->
+    <section class="step-card" id="step3">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <div class="step-title" data-i18n="step3">程序选择</div>
+      </div>
+
+      <!-- Reminder inside step 3 -->
+      <div class="reminder-box">
+        <div class="reminder-header">
+          <div class="reminder-icon">!</div>
+          <div class="reminder-title" data-i18n="notice_title">程序切换前提醒</div>
+        </div>
+        <div class="reminder-content">
+          <div class="rc-text" data-i18n="nt1">如果设备正在生产或者待产请先停止生产（此状态为停止生产）</div>
+          <div class="rc-img"><img src="images/reminder_img.png" data-i18n-alt="nt1_img" alt="停止生产界面" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- Step 3 main instructions -->
+      <ul class="instructions">
+        <li data-i18n="s3_l1">点击程序学习</li>
+        <li data-i18n="s3_l2">选取程序</li>
+        <li data-i18n="s3_l3">选取需要使用的程序（共4种程序，以现场需要选取）</li>
+        <li data-i18n="s3_l4">点击加载</li>
+        <li data-i18n="s3_l5">观察目标程序是否显示读取成功</li>
+        <li data-i18n="s3_l6">点击确认</li>
+      </ul>
+      <div class="image-gallery single">
+        <div class="image-item"><img src="images/slide4_img0.png" data-i18n-alt="s3_img1" alt="打开程序界面" onclick="openModal(this)"></div>
+      </div>
+
+      <!-- Sub-section A: 挑选尺寸NG -->
+      <div class="sub-section" id="step3a">
+        <div class="sub-header">
+          <div class="sub-badge">A</div>
+          <div class="sub-title" data-i18n="step3a">挑选尺寸NG</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <ul class="instructions">
+          <li data-i18n="s4_l1">点击程序学习</li>
+          <li data-i18n="s4_l2">选择程序</li>
+          <li data-i18n="s4_l3">选取程序内挑不良的程序</li>
+          <li data-i18n="s4_l4">点击加载</li>
+          <li data-i18n="s4_l5">查看日志程序是否加载成功</li>
+          <div class="image-gallery single">
+            <div class="image-item"><img src="images/slide5_img0.png" data-i18n-alt="s4_img1" alt="挑选尺寸NG - 程序学习" onclick="openModal(this)"></div>
+          </div>
+          <li data-i18n="s4_l6">点击确认</li>
+          <li data-i18n="s4_l7">点击参数设置</li>
+          <li data-i18n="s4_l8">选择物料分类</li>
+          <li data-i18n="s4_l9">选择需要挑选物料状态（物料状态以不良代码命名，如：VN-FVI255 为 FAI11 尺寸不良），以现场实际挑选状态实时更改</li>
+          <li data-i18n="s4_l10">所有程序更改完成后点击开始生产即可</li>
+        </ul>
+        <div class="image-gallery">
+          <div class="image-item"><img src="images/slide5_img1.png" data-i18n-alt="s4_img2" alt="挑选尺寸NG - 参数设置" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- Sub-section B: 包装程序 -->
+      <div class="sub-section" id="step3b">
+        <div class="sub-header">
+          <div class="sub-badge">B</div>
+          <div class="sub-title" data-i18n="step3b">包装程序</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <ul class="instructions">
+          <li data-i18n="s5_l1">点击程序学习</li>
+          <li data-i18n="s5_l2">点击选取程序</li>
+          <li data-i18n="s5_l3">选择包装程序</li>
+          <li data-i18n="s5_l4">点击加载</li>
+          <li data-i18n="s5_l5">观察日志是否加载成功</li>
+          <div class="image-gallery single">
+            <div class="image-item"><img src="images/slide6_img0.png" data-i18n-alt="s5_img1" alt="包装程序 - 程序加载" onclick="openModal(this)"></div>
+          </div>
+          <li data-i18n="s5_l6">点击确认</li>
+          <li data-i18n="s5_l7">点击机器诊断</li>
+          <li data-i18n="s5_l8">点击网口</li>
+          <li data-i18n="s5_l9">核对工单号、员工工号及包装站点（如需更改请在这里更改）</li>
+          <li data-i18n="s5_l10">选择包装使用的数据格式，包装默认使用 M9-308-34，点击确认即可</li>
+        </ul>
+        <div class="image-gallery">
+          <div class="image-item"><img src="images/slide6_img1.png" data-i18n-alt="s5_img2" alt="包装程序 - 机器诊断" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Step 4: MES模式 -->
+    <section class="step-card" id="step4">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <div class="step-title" data-i18n="step4">MES模式</div>
+      </div>
+      <table class="info-table">
+        <thead>
+          <tr><th data-i18n="s6_th1">程序名称</th><th data-i18n="s6_th2">默认功能</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="code">AC308_1 / AC306_1</td><td data-i18n="s6_f1">挑 Hold</td></tr>
+          <tr><td class="code">AC308_2 / AC306_2</td><td data-i18n="s6_f2">挑尺寸 NG</td></tr>
+          <tr><td class="code">AC308_3 / AC306_3</td><td data-i18n="s6_f3">检查途程</td></tr>
+          <tr><td class="code">AC308_34 / AC306_34</td><td data-i18n="s6_f4">包装</td></tr>
+        </tbody>
+      </table>
+      <div class="note-box" data-i18n="s6_note">请按照现场实际情况挑选</div>
+      <div class="note-box" data-i18n="s6_note2" style="border-left-color:var(--warn);background:#fffbeb;">AC308_34 / AC306_34 项意思仅为同时启用 AC308_3 / AC306_3 和 AC308_4 / AC306_4，如需更改工单号请单独修改每一项</div>
+      <div class="image-gallery single">
+        <div class="image-item"><img src="images/slide7_img0.png" data-i18n-alt="s6_img1" alt="MES模式程序说明" onclick="openModal(this)"></div>
+      </div>
+    </section>
+
+    <!-- Step 5: 点位调整 -->
+    <section class="step-card" id="step5">
+      <div class="step-header">
+        <div class="step-number">5</div>
+        <div class="step-title" data-i18n="step5">点位调整</div>
+      </div>
+      <ul class="instructions">
+        <li data-i18n="s7_l1">点击参数设置</li>
+        <li data-i18n="s7_l2">选择需要调整的数据（取料或者贴片，贴片为放料）</li>
+        <li data-i18n="s7_l3">选择需要调整的位置，X / Y / Z 轴更改数据</li>
+        <li data-i18n="s7_l4">选择需要更改位置的吸嘴</li>
+        <li data-i18n="s7_l5">点击确认，点击开始生产观察取放料是否 OK</li>
+      </ul>
+      <div class="image-gallery single">
+        <div class="image-item"><img src="images/slide8_img0.png" data-i18n-alt="s7_img1" alt="点位调整界面" onclick="openModal(this)"></div>
+      </div>
+    </section>
+
+
+
+    <!-- Step 6: 软件主界面功能说明 -->
+    <section class="step-card" id="step6">
+      <div class="step-header">
+        <div class="step-number">6</div>
+        <div class="step-title" data-i18n="step6">软件主界面功能说明</div>
+      </div>
+
+      <!-- 6.1 -->
+      <div class="sub-section" id="s61">
+        <div class="sub-header">
+          <div class="sub-badge">1</div>
+          <div class="sub-title" data-i18n="s61_title">红蓝键</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s61_desc">红色按钮为暂停，蓝色按钮为启动，用于控制设备的运行与停止状态。</p>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_1.png" data-i18n-alt="s61_img" alt="红蓝键区域标注" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.2 -->
+      <div class="sub-section" id="s62">
+        <div class="sub-header">
+          <div class="sub-badge">2</div>
+          <div class="sub-title" data-i18n="s62_title">上下左右键（移动工作台）</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s62_desc">在"移动工作台"区域，通过方向键控制 X/Y/Z/R 轴的移动；配合轴选择与步长设置，可精确调整工作台位置。</p>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_2.png" data-i18n-alt="s62_img" alt="上下左右键区域标注" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.3 -->
+      <div class="sub-section" id="s63">
+        <div class="sub-header">
+          <div class="sub-badge">3</div>
+          <div class="sub-title" data-i18n="s63_title">过程控制</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s63_desc">用于管理生产过程中的各项控制参数与状态。</p>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_3.png" data-i18n-alt="s63_img1" alt="过程控制区域标注" onclick="openModal(this)"></div>
+        </div>
+        <p style="font-weight:700;color:var(--text);margin-top:20px;margin-bottom:8px;" data-i18n="s63_detail_title">详细设置窗口：</p>
+        <ul class="instructions">
+          <li data-i18n="s63_d1">取料对点（板）：取料位置的MARK点，用于计算或补偿取料区域的位置</li>
+          <li data-i18n="s63_d2">取料对点（位）：每一个取料位置，用于扫码或补偿单个点的位置</li>
+          <li data-i18n="s63_d3">贴片对点（板）：贴料位置的MARK点，用于计算或补偿贴料区域的位置</li>
+          <li data-i18n="s63_d4">贴片对点（位）：每一个贴料位置，用于补偿单个点的位置</li>
+          <li data-i18n="s63_d5">取料：进行取料动作（生产必须勾选否则设备无法正常运行）</li>
+          <li data-i18n="s63_d6">贴片：进行贴料动作（生产必须勾选否则设备无法正常运行）</li>
+          <li data-i18n="s63_d7">飞拍：通过设备下相机计算补偿或扫描产品背部二维码</li>
+          <li data-i18n="s63_d8">轨道1进出料：设备运行时轨道1是否正常进行进出板动作（生产必须勾选否则设备无法正常运行）</li>
+          <li data-i18n="s63_d9">轨道2进出料：设备运行时轨道2是否正常进行进出板动作（生产必须勾选否则设备无法正常运行）</li>
+        </ul>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_4.png" data-i18n-alt="s63_img2" alt="过程控制详细设置" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.4 -->
+      <div class="sub-section" id="s64">
+        <div class="sub-header">
+          <div class="sub-badge">4</div>
+          <div class="sub-title" data-i18n="s64_title">功能选项</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s64_desc">提供额外的功能配置和选项设置入口。</p>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_5.png" data-i18n-alt="s64_img1" alt="功能选项区域标注" onclick="openModal(this)"></div>
+        </div>
+        <p style="font-weight:700;color:var(--text);margin-top:20px;margin-bottom:8px;" data-i18n="s64_detail_title">详细设置窗口：</p>
+        <p style="font-weight:600;color:var(--primary);margin-bottom:8px;" data-i18n="s64_func_title">功能选项</p>
+        <ul class="instructions">
+          <li data-i18n="s64_d1">取料对点位扫码分类：对取料位置进行扫描二维码进行不良挑选或挑选HOLD或包装</li>
+          <li data-i18n="s64_d2">飞拍位扫码分类：通过飞下相机拍照扫描二维码进行不良挑选或挑选HOLD或包装</li>
+          <li data-i18n="s64_d3">取料对点位扫码(有料检测)：对取料位置进行扫描二维码来检测是否有料</li>
+          <li data-i18n="s64_d4">飞拍位扫码(有料检测)：对贴料位置进行扫描二维码来检测是否有料</li>
+          <li data-i18n="s64_d5">飞拍有料检测：通过飞拍模板检查吸嘴上是否有料（功能未完成）</li>
+          <li data-i18n="s64_d6">启用包装：启用包装MES</li>
+          <li data-i18n="s64_d7">取料检测：通过真空检测吸嘴上是否有料（功能未完成）</li>
+          <li data-i18n="s64_d8">重贴检测：防重贴（功能未完成）</li>
+          <li data-i18n="s64_d9">贴片检测：检查是否贴偏（功能未完成）</li>
+          <li data-i18n="s64_d10">保存生产图片：保存生产中下相机飞拍的照片</li>
+        </ul>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_6.png" data-i18n-alt="s64_img2" alt="功能选项设置窗口" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.5 -->
+      <div class="sub-section" id="s65">
+        <div class="sub-header">
+          <div class="sub-badge">5</div>
+          <div class="sub-title" data-i18n="s65_title">物料进出</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:8px;" data-i18n="s65_desc">控制物料的进入和退出流程，管理上下料动作。</p>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s65_desc2">此区域可以手动控制轨道进出料。</p>
+        <div class="image-gallery">
+          <div class="image-item"><img src="images/docx_img_7.png" data-i18n-alt="s65_img1" alt="物料进出界面" onclick="openModal(this)"></div>
+          <div class="image-item"><img src="images/docx_img_8.png" data-i18n-alt="s65_img2" alt="物料进出控制" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.6 -->
+      <div class="sub-section" id="s66">
+        <div class="sub-header">
+          <div class="sub-badge">6</div>
+          <div class="sub-title" data-i18n="s66_title">物料分类</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s66_desc">用于对物料进行分类管理和识别配置。</p>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_9.png" data-i18n-alt="s66_img1" alt="物料分类界面" onclick="openModal(this)"></div>
+        </div>
+        <p style="font-weight:600;color:var(--primary);margin-top:20px;margin-bottom:8px;" data-i18n="s66_func_title">物料分类</p>
+        <ul class="instructions">
+          <li data-i18n="s66_d1">取料标识：点击可以切换是否取当前状态的料</li>
+          <li data-i18n="s66_d2">物料状态：此栏输入不良代码或产品状态配合4可以进行组合（详见MES功能说明）</li>
+          <li data-i18n="s66_d3">包装数量：启用包装模式时需要在此输入对应包装数量来进行包装或补料</li>
+          <li data-i18n="s66_d4">MES模式：通过更改不同的MES模式与3组合成不良挑选或挑选HOLD或包装（详见MES功能说明）</li>
+        </ul>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_10.png" data-i18n-alt="s66_img2" alt="物料分类详细设置" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+      <!-- 6.7 -->
+      <div class="sub-section" id="s67">
+        <div class="sub-header">
+          <div class="sub-badge">7</div>
+          <div class="sub-title" data-i18n="s67_title">参数设置</div>
+        <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="image-gallery single">
+          <div class="image-item"><img src="images/docx_img_11.png" data-i18n-alt="s67_img1" alt="参数设置界面" onclick="openModal(this)"></div>
+        </div>
+        <ul class="instructions">
+          <li data-i18n="s67_d1">取料位数据：可以更改取料时的每个吸头的整体坐标（详见点位调整）</li>
+          <li data-i18n="s67_d2">贴片位数据：可以更改贴料时的每个吸头的整体坐标（详见点位调整）</li>
+          <li data-i18n="s67_d3">速度数据：可以更改生产时 X/Y/Z/T 轴的速度（不要随便调整以下是原始参数）</li>
+          <li data-i18n="s67_d4">延时数据：可以修改每个动作相对应的轴运动或感应器触发的延时</li>
+        </ul>
+        <div class="image-gallery">
+          <div class="image-item"><img src="images/docx_img_12.png" data-i18n-alt="s67_img2" alt="参数设置-速度/延时" onclick="openModal(this)"></div>
+          <div class="image-item"><img src="images/docx_img_13.png" data-i18n-alt="s67_img3" alt="参数设置详情" onclick="openModal(this)"></div>
+        </div>
+      </div>
+
+    </section>
+
+
+
+    <!-- Step 8 -->
+    <section class="step-card" id="step8">
+      <div class="step-header">
+        <div class="step-number">8</div>
+        <div class="step-title" data-i18n="step8">易损清单</div>
+      </div>
+      <table class="parts-table">
+        <thead>
+          <tr><th data-i18n="s8_th1">序号</th><th data-i18n="s8_th2">配件名称</th><th data-i18n="s8_th3">规格型号</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="pno">1</td><td class="pname">吸嘴</td><td class="pspec">根据客户料图纸定制</td></tr>
+          <tr><td class="pno">4</td><td class="pname">双轨道传送皮带</td><td class="pspec">尼龙片基带(不防静电) 周长1877mm 宽10 公差5(0/-0.1)mm 厚度1.2mm</td></tr>
+          <tr><td class="pno">5</td><td class="pname">双轨道限位气缸</td><td class="pspec">CXSM10-20</td></tr>
+          <tr><td class="pno">7</td><td class="pname">下相机网线</td><td class="pspec">GE RJ45/S to RJ45 3m (COMOSS)</td></tr>
+          <tr><td class="pno">8</td><td class="pname">上相机网线</td><td class="pspec">GE RJ45/S to RJ45 5m HighFlex</td></tr>
+          <tr><td class="pno">9</td><td class="pname">下相机电源线</td><td class="pspec">触发线高柔性500W-直头</td></tr>
+          <tr><td class="pno">10</td><td class="pname">上相机电源线</td><td class="pspec">触发线高柔性1000W-直头</td></tr>
+          <tr><td class="pno">11</td><td class="pname">X轴编码线</td><td class="pspec">定制品</td></tr>
+          <tr><td class="pno">12</td><td class="pname">Y轴编码线</td><td class="pspec">定制品</td></tr>
+          <tr><td class="pno">13</td><td class="pname">Z轴编码线</td><td class="pspec">定制品</td></tr>
+          <tr><td class="pno">14</td><td class="pname">R轴编码线</td><td class="pspec">定制品</td></tr>
+          <tr><td class="pno">15</td><td class="pname">X轴感应器</td><td class="pspec">EE-SX674-WR</td></tr>
+          <tr><td class="pno">16</td><td class="pname">Y轴感应器</td><td class="pspec">EE-SX674-WR</td></tr>
+          <tr><td class="pno">17</td><td class="pname">Z轴感应器</td><td class="pspec">PM-L25 NPN (1米)</td></tr>
+          <tr><td class="pno">18</td><td class="pname">R轴感应器</td><td class="pspec">EE-SX674-WR</td></tr>
+          <tr><td class="pno">19</td><td class="pname">下相机光源电源线</td><td class="pspec">SM-3P/公母(中空)-3M</td></tr>
+          <tr><td class="pno">20</td><td class="pname">网线</td><td class="pspec">黑色cat6a高柔双屏蔽千兆网线</td></tr>
+          <tr><td class="pno">21</td><td class="pname">X驱动器</td><td class="pspec">CDHD-4D52AAP1</td></tr>
+          <tr><td class="pno">22</td><td class="pname">Y驱动器</td><td class="pspec">CDHD-4D52AAP1</td></tr>
+          <tr><td class="pno">23</td><td class="pname">Z轴联轴器</td><td class="pspec">单 外径19 长20 孏4.5/8(mm)</td></tr>
+          <tr><td class="pno">27</td><td class="pname">X驱动器</td><td class="pspec">CDHD-4D52AAP1</td></tr>
+          <tr><td class="pno">28</td><td class="pname">Y驱动器</td><td class="pspec">CDHD-4D52AAP1</td></tr>
+          <tr><td class="pno">31</td><td class="pname">48V开关电源</td><td class="pspec">LRS-350-48v</td></tr>
+          <tr><td class="pno">32</td><td class="pname">24V开关电源</td><td class="pspec">LRS-350-24v</td></tr>
+          <tr><td class="pno">36</td><td class="pname">Z/R驱动器</td><td class="pspec">2hss57-a-42 / 2dm415 两款型号</td></tr>
+          <tr><td class="pno">37</td><td class="pname">R轴电机</td><td class="pspec">28J1851-410-8-1510-01</td></tr>
+          <tr><td class="pno">38</td><td class="pname">Z轴电机</td><td class="pspec">42J1848EC-1000-LS</td></tr>
+          <tr><td class="pno">39</td><td class="pname">气撑</td><td class="pspec">210N 两孔间距310，球头</td></tr>
+          <tr><td class="pno">40</td><td class="pname">传送带停板感应器</td><td class="pspec">YC031CG30N</td></tr>
+          <tr><td class="pno">41</td><td class="pname">传送带电机</td><td class="pspec">23HS6404-8TB</td></tr>
+          <tr><td class="pno">42</td><td class="pname">磁栅尺读数头</td><td class="pspec">PSLH080-0SC</td></tr>
+          <tr><td class="pno">43</td><td class="pname">磁栅尺</td><td class="pspec">PSLF2-0200B</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Step 9 -->
+    <section class="step-card" id="step9">
+      <div class="step-header">
+        <div class="step-number">9</div>
+        <div class="step-title" data-i18n="step9">设备保养手册</div>
+      </div>
+
+      <div class="sub-section" id="s91">
+        <div class="sub-header"><div class="sub-badge">1</div><div class="sub-title" data-i18n="s91_title">前言</div><span class="collapse-arrow">▼</span></div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s91_desc">定期合理的保养可保证设备处于良好状态，减少故障率，提高设备完好率、利用率，减少设备磨损，延长设备的使用寿命，降低设备运行维护成本，确保安全生产。</p>
+      </div>
+
+      <div class="sub-section" id="s92">
+        <div class="sub-header"><div class="sub-badge">2</div><div class="sub-title" data-i18n="s92_title">保养注意事项</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s92_l1">非专业人员禁止操作；</li>
+          <li data-i18n="s92_l2">保养前机台必须要断开电源，并将插头拔出；</li>
+          <li data-i18n="s92_l3">保养时必须在机台显眼位置放置警示牌；</li>
+        </ul>
+      </div>
+
+      <div class="sub-section" id="s93">
+        <div class="sub-header"><div class="sub-badge">3</div><div class="sub-title" data-i18n="s93_title">准备工作</div><span class="collapse-arrow">▼</span></div>
+        <p style="font-size:0.95rem;color:var(--text);margin-bottom:16px;" data-i18n="s93_desc">准备无尘纸/无尘布、酒精、防锈油、轨道丝杠润滑油及油枪、气枪、开口扳手、内六角扳手、防静电手套等；</p>
+      </div>
+
+      <div class="sub-section" id="s94">
+        <div class="sub-header"><div class="sub-badge">4</div><div class="sub-title" data-i18n="s94_title">4.1 X 轴</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s94_l1">使用无尘纸/无尘布对定子、导轨进行灰尘及油渍清理；</li>
+          <li data-i18n="s94_l2">使用专用加油枪对导轨滑块添加新的润滑油；</li>
+          <li data-i18n="s94_l3">使用无尘纸/无尘布对光栅尺表面灰尘及油渍清理（注意：不可使用酒精进行清洁；不要大力擦拭光栅尺，否则可能会刮花光栅尺表面，不可有异物残留光栅尺表面）；</li>
+          <li data-i18n="s94_l4">手动推动X轴，观察光栅尺读数头指示灯颜色（正常位墨绿色），并对其固定螺丝进行紧固确认；</li>
+          <li data-i18n="s94_l5">X轴电机固定螺丝、电机座固定螺丝、磁铁固定座螺丝、滑块固定螺丝等主要部位进行紧固确认；</li>
+          <li data-i18n="s94_l6">检查X 轴拖链及线材是否有磨损现象或损坏现象；</li>
+          <li data-i18n="s94_l7">检查X 轴原点、限位传感器螺丝紧固确认，接头确认，功能确认；</li>
+          <li data-i18n="s94_l8">机架空白处涂抹防锈油；</li>
+        </ul>
+        <div class="image-gallery single"><div class="image-item"><img src="images/maintain_image2.png" data-i18n-alt="s94_img" alt="X轴保养" onclick="openModal(this)"></div></div>
+      </div>
+
+      <div class="sub-section" id="s95">
+        <div class="sub-header"><div class="sub-badge">5</div><div class="sub-title" data-i18n="s95_title">4.2 Y 轴</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s95_l1">使用无尘纸/无尘布对定子、导轨进行灰尘及油渍清理；</li>
+          <li data-i18n="s95_l2">使用专用加油枪对导轨滑块添加新的润滑油；</li>
+          <li data-i18n="s95_l3">使用无尘纸/无尘布对光栅尺表面灰尘及油渍清理（注意：不可使用酒精进行清洁）；</li>
+          <li data-i18n="s95_l4">手动推动Y轴，观察光栅尺读数头指示灯颜色（正常位墨绿色），并对其固定螺丝进行紧固确认；</li>
+          <li data-i18n="s95_l5">Y轴电机固定螺丝、电机座固定螺丝、磁铁固定座螺丝、滑块固定螺丝等主要部位进行紧固确认；</li>
+          <li data-i18n="s95_l6">检查Y 轴拖链及线材是否有磨损现象或损坏现象；</li>
+          <li data-i18n="s95_l7">检查Y 轴原点、限位传感器螺丝紧固确认，接头确认，功能确认；</li>
+        </ul>
+      </div>
+
+      <div class="sub-section" id="s96">
+        <div class="sub-header"><div class="sub-badge">6</div><div class="sub-title" data-i18n="s96_title">4.3 整组贴装头</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s96_l1">R 轴和Z 轴电机、连轴器、丝杠法兰固定螺丝紧固确认；</li>
+          <li data-i18n="s96_l2">R 轴和Z 轴轴承、滑块质量及螺丝紧固确认；</li>
+          <li data-i18n="s96_l3">R 轴气动滑环、电动滑环固定螺丝紧固确认；</li>
+          <li data-i18n="s96_l4">Z 轴气压、自锁功能确认；</li>
+          <li data-i18n="s96_l5">伺服马达螺丝紧固确认；</li>
+          <li data-i18n="s96_l6">Z1 Z2 R1 R2 轴限位感应器功能确认；</li>
+          <li data-i18n="s96_l7">确认机头气压大小，看看是否有东西堵塞；</li>
+          <li data-i18n="s96_l8">上相机固定座固定螺丝紧固确认；</li>
+          <li data-i18n="s96_l9">上相机镜头与相机紧固确认；</li>
+          <li data-i18n="s96_l10">上相机镜头螺丝紧固确认；</li>
+          <li data-i18n="s96_l11">上相机镜头表面灰尘、杂物清理；</li>
+          <li data-i18n="s96_l12">上相机图像清晰度确认；</li>
+          <li data-i18n="s96_l13">上相机光源表面灰尘、杂物清理及功能确认；（相机以及光源表面为易碎品，清洁时请多加注意）</li>
+        </ul>
+        <div class="image-gallery single"><div class="image-item"><img src="images/maintain_image6.png" data-i18n-alt="s96_img" alt="整组贴装头保养" onclick="openModal(this)"></div></div>
+      </div>
+
+      <div class="sub-section" id="s97">
+        <div class="sub-header"><div class="sub-badge">7</div><div class="sub-title" data-i18n="s97_title">4.4 传送轨道</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s97_l1">使用无尘纸/无尘布清洁丝杠表面灰尘及油渍；</li>
+          <li data-i18n="s97_l2">调宽窄电机、传送电机固定螺丝、电机座固定螺丝、丝杠固定座螺丝、丝杠法兰固定螺丝等主要部位进行紧固确认；</li>
+          <li data-i18n="s97_l3">检查轴承是否损坏确认；</li>
+          <li data-i18n="s97_l4">检查原点、限位传感器螺丝紧固确认，接头确认，功能确认；</li>
+          <li data-i18n="s97_l5">检查皮带是否有严重磨损；</li>
+        </ul>
+        <div class="image-gallery single"><div class="image-item"><img src="images/maintain_image8.png" data-i18n-alt="s97_img" alt="传送轨道保养" onclick="openModal(this)"></div></div>
+      </div>
+
+      <div class="sub-section" id="s98">
+        <div class="sub-header"><div class="sub-badge">8</div><div class="sub-title" data-i18n="s98_title">4.5 下CCD 相机</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s98_l1">相机固定座固定螺丝紧固确认；</li>
+          <li data-i18n="s98_l2">相机镜头与相机紧固确认；</li>
+          <li data-i18n="s98_l3">相机镜头螺丝紧固确认；</li>
+          <li data-i18n="s98_l4">相机镜头表面灰尘、杂物清理；</li>
+          <li data-i18n="s98_l5">相机图像清晰度确认；</li>
+          <li data-i18n="s98_l6">相机光源表面灰尘、杂物清理，功能确认；（相机以及光源表面为易碎品，清洁时请多加注意）</li>
+        </ul>
+        <div class="image-gallery single"><div class="image-item"><img src="images/maintain_image9.png" data-i18n-alt="s98_img" alt="下CCD相机保养" onclick="openModal(this)"></div></div>
+      </div>
+
+      <div class="sub-section" id="s99">
+        <div class="sub-header"><div class="sub-badge">9</div><div class="sub-title" data-i18n="s99_title">4.6 工控机（操做时佩戴防静电手套）</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s99_l1">工控机扇热风扇灰尘清洁；</li>
+          <li data-i18n="s99_l2">工控机CPU 加扇热膏；</li>
+          <li data-i18n="s99_l3">工控机固定螺丝松紧确认；</li>
+        </ul>
+      </div>
+
+      <div class="sub-section" id="s910">
+        <div class="sub-header"><div class="sub-badge">10</div><div class="sub-title" data-i18n="s910_title">4.7 电控/气路</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s910_l1">电控箱灰尘清洁；（不可使用清洁剂）</li>
+          <li data-i18n="s910_l2">设备左右扇热风扇确认是否正常以及清理灰尘；</li>
+          <li data-i18n="s910_l3">空气过滤器放水，确认输入气压不低于0.5pa；</li>
+          <li data-i18n="s910_l4">打开各个气路开关查看是否有漏气现象；</li>
+          <li data-i18n="s910_l5">安全门接近开关，安全光幕功能确认；</li>
+        </ul>
+      </div>
+
+      <div class="sub-section" id="s911">
+        <div class="sub-header"><div class="sub-badge">11</div><div class="sub-title" data-i18n="s911_title">4.8 外壳及机台表面清洁</div><span class="collapse-arrow">▼</span></div>
+        <ul class="instructions">
+          <li data-i18n="s911_l1">设备外观使用酒精进行清洁；</li>
+          <li data-i18n="s911_l2">设备抛料盒清洁；</li>
+          <li data-i18n="s911_l3">设备表面清洁。</li>
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- Step 10 -->
+    <section class="step-card" id="step10">
+      <div class="step-header">
+        <div class="step-number">10</div>
+        <div class="step-title" data-i18n="step10">驱动器手册</div>
+      </div>
+
+      <div class="sub-section" id="s101">
+        <div class="sub-header"><div class="sub-badge">1</div><div class="sub-title" data-i18n="s101_title">LED 显示代码及定义</div><span class="collapse-arrow">▼</span></div>
+        <table class="fault-table">
+          <thead><tr><th data-i18n="s10_th1">显示文本</th><th data-i18n="s10_th2">定义</th><th data-i18n="s10_th3">类型</th></tr></thead>
+          <tbody>
+            <tr><td class="code">0</td><td>IDLE</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">1</td><td>ADC</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">2</td><td>Motor Phase Identify</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">3</td><td>Machine Identify</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">4</td><td>Voltage OMode</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">5</td><td>Current CMode</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">6</td><td>Velocity CMode</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">7</td><td>Position CMode</td><td class="type-mode">模式</td></tr>
+            <tr><td class="code">E0</td><td>OC</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E1</td><td>OV</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E2</td><td>UV</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E3</td><td>BRKPH</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E4</td><td>RESERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E5</td><td>OL</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E6</td><td>OT</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E7</td><td>IOERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E8</td><td>REG</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">E9</td><td>PS</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F0</td><td>OS</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F1</td><td>OPRE</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F2</td><td>DIR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F3</td><td>SOC</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F4</td><td>OBPH</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F5</td><td>OT_MOT</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F6</td><td>PTE</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F7</td><td>STO</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F8</td><td>0B_ERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">F9</td><td>FAN</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L0</td><td>SRF</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L1</td><td>OBP</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L2</td><td>NET</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L3</td><td>VTE</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L4</td><td>MPHA</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L5</td><td>HOME</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L6</td><td>PPNE</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L7</td><td>HALL</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L8</td><td>SYN_ERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">L9</td><td>OLD</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P0</td><td>SENCER</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P1</td><td>SUPPLYERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P2</td><td>SLAVEERR</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P3</td><td>FLASHERR</td><td class="type-warn">警告</td></tr>
+            <tr><td class="code">P4</td><td>LIMITERR</td><td class="type-warn">警告</td></tr>
+            <tr><td class="code">P5</td><td>PRETE</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P6</td><td>STALL</td><td class="type-fault">故障</td></tr>
+            <tr><td class="code">P7</td><td>BKROL</td><td class="type-fault">故障</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-section" id="s102">
+        <div class="sub-header"><div class="sub-badge">2</div><div class="sub-title" data-i18n="s102_title">常见故障排除方法</div><span class="collapse-arrow">▼</span></div>
+        <table class="fault-table">
+          <thead><tr><th data-i18n="s10_th4">代码</th><th data-i18n="s10_th5">报警名称</th><th data-i18n="s10_th6">可能原因</th><th data-i18n="s10_th7">应对措施</th></tr></thead>
+          <tbody>
+            <tr><td class="code">E0</td><td>伺服过流 (OC)</td><td>1.负载过大 2.电机输出侧短路 3.参数设置错误</td><td>1.减小负载 2.检查接线 3.检查参数</td></tr>
+            <tr><td class="code">E1</td><td>伺服过压 (OV)</td><td>1.电源电压过高 2.减速时间太短 3.刹车电阻容量不足</td><td>1.检查电源 2.减小斜坡 3.检查刷车电阻</td></tr>
+            <tr><td class="code">E2</td><td>伺服欠压 (UV)</td><td>1.电压过低 2.瞬时负载过重 3.输入侧连线有误</td><td>1.检查AC电压 2.检测连线</td></tr>
+            <tr><td class="code">E4</td><td>编码器故障 (RESERR)</td><td>1.接线松动 2.屏蔽接地未连接 3.电路异常</td><td>1.检查接线 2.检查接地线 3.减少干扰</td></tr>
+            <tr><td class="code">E5</td><td>伺服过载 (OL)</td><td>1.负载过大 2.输出短路 3.参数错误</td><td>1.减小负载 2.检查接线 3.检查参数</td></tr>
+            <tr><td class="code">E6</td><td>伺服过温 (OT)</td><td>1.IPM过热 2.电机过热 3.整流桥过热</td><td>1.检查负载 2.检查容量 3.检查散热</td></tr>
+            <tr><td class="code">E9</td><td>功率模块故障 (PS)</td><td>1.IPM损坏 2.系统干扰</td><td>联系技术支持</td></tr>
+            <tr><td class="code">F0</td><td>电机超速 (OS)</td><td>1.速度过高 2.编码器异常 3.参数错误 4.响应超调 5.转子位置不准</td><td>1.检查接线 2.检查参数 3.检查转速参数</td></tr>
+            <tr><td class="code">F5</td><td>电机过温 (OT_MOT)</td><td>1.长时间过载 2.散热不好 3.堵转</td><td>1.检查散热 2.是否堵转 3.是否过载</td></tr>
+            <tr><td class="code">F6</td><td>位置跟随误差超限 (PTE)</td><td>1.加速度过大 2.参数不合适 3.接线异常</td><td>1.减小加速度 2.检查参数 3.检查接线</td></tr>
+            <tr><td class="code">F7</td><td>STO故障</td><td>STO急停按钮拍下</td><td>检查STO急停按钮是否松开</td></tr>
+            <tr><td class="code">F9</td><td>风扇故障 (FAN)</td><td>1.风扇损坏 2.电源异常 3.信号异常</td><td>联系技术支持</td></tr>
+            <tr><td class="code">L2</td><td>gLink-II通信异常</td><td>通信线缆接触不良</td><td>检查通信线缆连接</td></tr>
+            <tr><td class="code">L5</td><td>回零失败 (HOME)</td><td>回零模式设置错误</td><td>检查回零模式设置</td></tr>
+            <tr><td class="code">P3</td><td>FLASH读取失败</td><td>底层芯片损坏</td><td>联系商务退换货</td></tr>
+            <tr><td class="code">P4</td><td>限位报警 (LIMITERR)</td><td>正负限位触发</td><td>解决限位触发条件</td></tr>
+            <tr><td class="code">P6</td><td>电机堵转 (STALL)</td><td>电机堵转超限</td><td>查看电机运行是否正常</td></tr>
+            <tr><td class="code">P7</td><td>制动电阻过载 (BKROL)</td><td>制动电阻超过功率和阻值</td><td>使用大的制动电阻</td></tr>
+          </tbody>
+        </table>
+        <div class="image-gallery single"><div class="image-item"><img src="images/driver_p8_img1.png" data-i18n-alt="s10_img" alt="设备状态指示" onclick="openModal(this)"></div></div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<div class="footer">
+  <span data-i18n="footer_text">创为转Tray机操作SOP</span> &nbsp;|&nbsp; <span data-i18n="footer_sub">标准操作流程文档</span>
+</div>
+
+<button class="back-top" onclick="scrollToTop()" title="回到顶部">&#8593;</button>
+
+<div class="modal" id="imageModal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="">
+</div>
+
+<script>
+var i18n = {
+  zh: {
+    title:"创为转Tray机操作SOP",
+    subtitle:"标准操作流程指引",
+    badge:"适用机型：AC308 / AC306 / AC204",
+    nav_title:"操作手册",
+    notice_title:"程序切换前提醒",
+    nt1:"如果设备正在生产或者待产请先停止生产（此状态为停止生产）",
+    nt1_img:"停止生产界面",
+    step1:"打开软件",
+    step2:"启动软件",
+    step3:"程序选择",
+    step3a:"挑选尺寸NG",
+    step3a_nav:"挑选尺寸NG",
+    step3b:"包装程序",
+    step3b_nav:"包装程序",
+    step4:"MES模式",
+    step5:"点位调整",
+    s1_l1:"点检桌面软件图标，以管理员的身份运行软件",
+    pwd_title:"账号密码",
+    pwd_admin:"管理员密码",
+    pwd_operator:"操作员密码",
+    pwd_engineer:"工程师密码",
+    copy:"复制",
+    s1_note:"AC308、AC306、AC204 同等操作",
+    s1_img1:"桌面软件图标",
+    s1_img2:"管理员运行",
+    s2_l1:"确认机器内部没有产品（如果有产品请手动拿出）",
+    s2_l2:"点击机器回零按钮",
+    s2_l3:"第一次回零会报警，点确定后点击报警复位，然后再点击机器回零",
+    s2_img1:"启动软件界面",
+    s3_l1:"点击程序学习",
+    s3_l2:"选取程序",
+    s3_l3:"选取需要使用的程序（共4种程序，以现场需要选取）",
+    s3_l4:"点击加载",
+    s3_l5:"观察目标程序是否显示读取成功",
+    s3_l6:"点击确认",
+    s3_img1:"打开程序界面",
+    s4_l1:"点击程序学习",
+    s4_l2:"选择程序",
+    s4_l3:"选取程序内挑不良的程序",
+    s4_l4:"点击加载",
+    s4_l5:"查看日志程序是否加载成功",
+    s4_l6:"点击确认",
+    s4_l7:"点击参数设置",
+    s4_l8:"选择物料分类",
+    s4_l9:"选择需要挑选物料状态（物料状态以不良代码命名，如：VN-FVI255 为 FAI11 尺寸不良），以现场实际挑选状态实时更改",
+    s4_l10:"所有程序更改完成后点击开始生产即可",
+    s4_img1:"挑选尺寸NG - 程序学习",
+    s4_img2:"挑选尺寸NG - 参数设置",
+    s5_l1:"点击程序学习",
+    s5_l2:"点击选取程序",
+    s5_l3:"选择包装程序",
+    s5_l4:"点击加载",
+    s5_l5:"观察日志是否加载成功",
+    s5_l6:"点击确认",
+    s5_l7:"点击机器诊断",
+    s5_l8:"点击网口",
+    s5_l9:"核对工单号、员工工号及包装站点（如需更改请在这里更改）",
+    s5_l10:"选择包装使用的数据格式，包装默认使用 M9-308-34，点击确认即可",
+    s5_img1:"包装程序 - 程序加载",
+    s5_img2:"包装程序 - 机器诊断",
+    s6_th1:"程序名称",
+    s6_th2:"默认功能",
+    s6_f1:"挑 Hold",
+    s6_f2:"挑尺寸 NG",
+    s6_f3:"检查途程",
+    s6_f4:"包装",
+    s6_note:"请按照现场实际情况挑选",
+    s6_note2:"AC308_34 / AC306_34 项意思仅为同时启用 AC308_3 / AC306_3 和 AC308_4 / AC306_4，如需更改工单号请单独修改每一项",
+    s6_img1:"MES模式程序说明",
+    s7_l1:"点击参数设置",
+    s7_l2:"选择需要调整的数据（取料或者贴片，贴片为放料）",
+    s7_l3:"选择需要调整的位置，X / Y / Z 轴更改数据",
+    s7_l4:"选择需要更改位置的吸嘴",
+    s7_l5:"点击确认，点击开始生产观察取放料是否 OK",
+    s7_img1:"点位调整界面",
+    footer_text:"创为转Tray机操作SOP",
+    footer_sub:"标准操作流程文档",
+    step6:"软件主界面功能说明",
+    s61_nav:"红蓝键", s62_nav:"移动工作台", s63_nav:"过程控制", s64_nav:"功能选项", s65_nav:"物料进出", s66_nav:"物料分类", s67_nav:"参数设置",
+    s91_nav:"前言", s92_nav:"保养注意事项", s93_nav:"准备工作",
+    s94_nav:"4.1 X 轴", s95_nav:"4.2 Y 轴", s96_nav:"4.3 整组贴装头",
+    s97_nav:"4.4 传送轨道", s98_nav:"4.5 下CCD相机", s99_nav:"4.6 工控机",
+    s910_nav:"4.7 电控/气路", s911_nav:"4.8 外壳清洁",
+    s101_nav:"LED显示代码", s102_nav:"故障排除方法",
+    s61_title:"红蓝键", s61_desc:"红色按钮为暂停，蓝色按钮为启动，用于控制设备的运行与停止状态。", s61_img:"红蓝键区域标注",
+    s62_title:"上下左右键（移动工作台）", s62_desc:"在「移动工作台」区域，通过方向键控制 X/Y/Z/R 轴的移动；配合轴选择与步长设置，可精确调整工作台位置。", s62_img:"上下左右键区域标注",
+    s63_title:"过程控制", s63_desc:"用于管理生产过程中的各项控制参数与状态。", s63_img1:"过程控制区域标注", s63_img2:"过程控制详细设置", s63_detail_title:"详细设置窗口：",
+    s63_d1:"取料对点（板）：取料位置的MARK点，用于计算或补偿取料区域的位置", s63_d2:"取料对点（位）：每一个取料位置，用于扫码或补偿单个点的位置", s63_d3:"贴片对点（板）：贴料位置的MARK点，用于计算或补偿贴料区域的位置", s63_d4:"贴片对点（位）：每一个贴料位置，用于补偿单个点的位置", s63_d5:"取料：进行取料动作（生产必须勾选否则设备无法正常运行）", s63_d6:"贴片：进行贴料动作（生产必须勾选否则设备无法正常运行）", s63_d7:"飞拍：通过设备下相机计算补偿或扫描产品背部二维码", s63_d8:"轨道1进出料：设备运行时轨道1是否正常进行进出板动作（生产必须勾选否则设备无法正常运行）", s63_d9:"轨道2进出料：设备运行时轨道2是否正常进行进出板动作（生产必须勾选否则设备无法正常运行）",
+    s64_title:"功能选项", s64_desc:"提供额外的功能配置和选项设置入口。", s64_img1:"功能选项区域标注", s64_img2:"功能选项设置窗口", s64_detail_title:"详细设置窗口：", s64_func_title:"功能选项",
+    s64_d1:"取料对点位扫码分类：对取料位置进行扫描二维码进行不良挑选或挑选HOLD或包装", s64_d2:"飞拍位扫码分类：通过飞下相机拍照扫描二维码进行不良挑选或挑选HOLD或包装", s64_d3:"取料对点位扫码(有料检测)：对取料位置进行扫描二维码来检测是否有料", s64_d4:"飞拍位扫码(有料检测)：对贴料位置进行扫描二维码来检测是否有料", s64_d5:"飞拍有料检测：通过飞拍模板检查吸嘴上是否有料（功能未完成）", s64_d6:"启用包装：启用包装MES", s64_d7:"取料检测：通过真空检测吸嘴上是否有料（功能未完成）", s64_d8:"重贴检测：防重贴（功能未完成）", s64_d9:"贴片检测：检查是否贴偏（功能未完成）", s64_d10:"保存生产图片：保存生产中下相机飞拍的照片",
+    s65_title:"物料进出", s65_desc:"控制物料的进入和退出流程，管理上下料动作。", s65_desc2:"此区域可以手动控制轨道进出料。", s65_img1:"物料进出界面", s65_img2:"物料进出控制",
+    s66_title:"物料分类", s66_desc:"用于对物料进行分类管理和识别配置。", s66_img1:"物料分类界面", s66_img2:"物料分类详细设置", s66_func_title:"物料分类",
+    s66_d1:"取料标识：点击可以切换是否取当前状态的料", s66_d2:"物料状态：此栏输入不良代码或产品状态配合4可以进行组合（详见MES功能说明）", s66_d3:"包装数量：启用包装模式时需要在此输入对应包装数量来进行包装或补料", s66_d4:"MES模式：通过更改不同的MES模式与3组合成不良挑选或挑选HOLD或包装（详见MES功能说明）",
+    s67_title:"参数设置", s67_img1:"参数设置界面", s67_img2:"参数设置-速度/延时", s67_img3:"参数设置详情",
+    s67_d1:"取料位数据：可以更改取料时的每个吸头的整体坐标（详见点位调整）", s67_d2:"贴片位数据：可以更改贴料时的每个吸头的整体坐标（详见点位调整）", s67_d3:"速度数据：可以更改生产时 X/Y/Z/T 轴的速度（不要随便调整以下是原始参数）", s67_d4:"延时数据：可以修改每个动作相对应的轴运动或感应器触发的延时",
+    step8:"易损清单",
+    s8_th1:"序号", s8_th2:"配件名称", s8_th3:"规格型号",
+    step9:"设备保养手册",
+    s91_title:"前言",
+    s92_title:"保养注意事项",
+    s93_title:"准备工作",
+    s94_title:"4.1 X 轴",
+    s95_title:"4.2 Y 轴",
+    s96_title:"4.3 整组贴装头",
+    s97_title:"4.4 传送轨道",
+    s98_title:"4.5 下CCD 相机",
+    s99_title:"4.6 工控机",
+    s910_title:"4.7 电控/气路",
+    s911_title:"4.8 外壳清洁",
+    step10:"驱动器手册",
+    s101_title:"LED 显示代码",
+    s102_title:"常见故障排除",
+    s10_th1:"显示文本", s10_th2:"定义", s10_th3:"类型",
+    s10_th4:"代码", s10_th5:"报警名称", s10_th6:"可能原因", s10_th7:"应对措施",
+    back_top:"回到顶部"
+  },
+  vi: {
+    title:"SOP Vận Hành Máy Chuyển Tray Skyworth",
+    subtitle:"Hướng Dẫn Quy Trình Vận Hành Chuẩn",
+    badge:"Model áp dụng: AC308 / AC306 / AC204",
+    nav_title:"Sổ Tay Thao Tác",
+    notice_title:"Nhắc Nhở Trước Khi Chuyển Chương Trình",
+    nt1:"Nếu thiết bị đang sản xuất hoặc chờ sản xuất, vui lòng dừng sản xuất trước (đây là trạng thái dừng sản xuất)",
+    nt1_img:"Giao diện dừng sản xuất",
+    step1:"Mở Phần Mềm",
+    step2:"Khởi Động Phần Mềm",
+    step3:"Chọn Chương Trình",
+    step3a:"Chọn Kích Thước NG",
+    step3a_nav:"Chọn Kích Thước NG",
+    step3b:"Chương Trình Đóng Gói",
+    step3b_nav:"Chương Trình Đóng Gói",
+    step4:"Chế Độ MES",
+    step5:"Điều Chỉnh Vị Trí",
+    s1_l1:"Kiểm tra biểu tượng phần mềm trên màn hình, chạy phần mềm với quyền quản trị viên",
+    pwd_title:"Tài Khoản & Mật Khẩu",
+    pwd_admin:"Mật khẩu Admin",
+    pwd_operator:"Mật khẩu Operator",
+    pwd_engineer:"Mật khẩu Kỹ sư",
+    copy:"Sao chép",
+    s1_note:"AC308, AC306, AC204 thao tác tương tự",
+    s1_img1:"Biểu tượng phần mềm trên màn hình",
+    s1_img2:"Chạy với quyền quản trị viên",
+    s2_l1:"Xác nhận không có sản phẩm bên trong máy (nếu có, vui lòng lấy ra bằng tay)",
+    s2_l2:"Nhấn nút đưa máy về vị trí gốc (Home)",
+    s2_l3:"Lần đầu về gốc sẽ báo lỗi, nhấn Xác nhận sau đó nhấn Reset báo động, rồi nhấn lại nút đưa máy về gốc",
+    s2_img1:"Giao diện khởi động phần mềm",
+    s3_l1:"Nhấn Học chương trình",
+    s3_l2:"Chọn chương trình",
+    s3_l3:"Chọn chương trình cần sử dụng (tổng cộng 4 loại chương trình, chọn theo nhu cầu thực tế)",
+    s3_l4:"Nhấn Tải",
+    s3_l5:"Quan sát chương trình mục tiêu có hiển thị đọc thành công không",
+    s3_l6:"Nhấn Xác nhận",
+    s3_img1:"Giao diện mở chương trình",
+    s4_l1:"Nhấn Học chương trình",
+    s4_l2:"Chọn chương trình",
+    s4_l3:"Chọn chương trình lọc sản phẩm lỗi",
+    s4_l4:"Nhấn Tải",
+    s4_l5:"Kiểm tra nhật ký chương trình đã tải thành công chưa",
+    s4_l6:"Nhấn Xác nhận",
+    s4_l7:"Nhấn Cài đặt tham số",
+    s4_l8:"Chọn phân loại vật liệu",
+    s4_l9:"Chọn trạng thái vật liệu cần lọc (trạng thái vật liệu được đặt tên theo mã lỗi, VD: VN-FVI255 là lỗi kích thước FAI11), thay đổi theo tình trạng lọc thực tế tại hiện trường",
+    s4_l10:"Sau khi hoàn tất thay đổi chương trình, nhấn Bắt đầu sản xuất",
+    s4_img1:"Chọn kích thước NG - Học chương trình",
+    s4_img2:"Chọn kích thước NG - Cài đặt tham số",
+    s5_l1:"Nhấn Học chương trình",
+    s5_l2:"Nhấn Chọn chương trình",
+    s5_l3:"Chọn chương trình đóng gói",
+    s5_l4:"Nhấn Tải",
+    s5_l5:"Quan sát nhật ký đã tải thành công chưa",
+    s5_l6:"Nhấn Xác nhận",
+    s5_l7:"Nhấn Chẩn đoán máy",
+    s5_l8:"Nhấn Cổng mạng",
+    s5_l9:"Kiểm tra số lệnh sản xuất, mã nhân viên và trạm đóng gói (nếu cần thay đổi, vui lòng thay đổi tại đây)",
+    s5_l10:"Chọn định dạng dữ liệu đóng gói, mặc định sử dụng M9-308-34, nhấn Xác nhận",
+    s5_img1:"Chương trình đóng gói - Tải chương trình",
+    s5_img2:"Chương trình đóng gói - Chẩn đoán máy",
+    s6_th1:"Tên chương trình",
+    s6_th2:"Chức năng mặc định",
+    s6_f1:"Lọc Hold",
+    s6_f2:"Lọc kích thước NG",
+    s6_f3:"Kiểm tra lộ trình",
+    s6_f4:"Đóng gói",
+    s6_note:"Vui lòng chọn theo tình hình thực tế tại hiện trường",
+    s6_note2:"Mục AC308_34 / AC306_34 có nghĩa là đồng thời bật AC308_3 / AC306_3 và AC308_4 / AC306_4, nếu cần thay đổi số lệnh sản xuất vui lòng sửa từng mục riêng biệt",
+    s6_img1:"Giải thích chương trình chế độ MES",
+    s7_l1:"Nhấn Cài đặt tham số",
+    s7_l2:"Chọn dữ liệu cần điều chỉnh (lấy vật liệu hoặc dán, dán là đặt vật liệu)",
+    s7_l3:"Chọn vị trí cần điều chỉnh, thay đổi dữ liệu trục X / Y / Z",
+    s7_l4:"Chọn đầu hút cần thay đổi vị trí",
+    s7_l5:"Nhấn Xác nhận, nhấn Bắt đầu sản xuất và quan sát việc lấy/đặt vật liệu có OK không",
+    s7_img1:"Giao diện điều chỉnh vị trí",
+    footer_text:"SOP Vận Hành Máy Chuyển Tray Skyworth",
+    footer_sub:"Tài Liệu Quy Trình Vận Hành Chuẩn",
+    step6:"Giải Thích Chức Năng Giao Diện Chính",
+    s61_nav:"Nút Đỏ/Xanh", s62_nav:"Di Chuyển Bàn", s63_nav:"Điều Khiển QT", s64_nav:"Tùy Chọn CN", s65_nav:"Vào/Ra VL", s66_nav:"Phân Loại VL", s67_nav:"Cài Đặt TS",
+    s91_nav:"Lời Mở Đầu", s92_nav:"Lưu Ý Bảo Dưỡng", s93_nav:"Chuẩn Bị",
+    s94_nav:"4.1 Trục X", s95_nav:"4.2 Trục Y", s96_nav:"4.3 Cụm Đầu Dán",
+    s97_nav:"4.4 Ray Truyền", s98_nav:"4.5 Camera CCD Dưới", s99_nav:"4.6 Máy Tính CN",
+    s910_nav:"4.7 Điện/Khí", s911_nav:"4.8 Vỏ Ngoài",
+    s101_nav:"Mã LED", s102_nav:"Khắc Phục Lỗi",
+    s61_title:"Nút Đỏ & Xanh", s61_desc:"Nút đỏ là tạm dừng, nút xanh là khởi động, dùng để điều khiển trạng thái chạy và dừng của thiết bị.", s61_img:"Khu vực nút đỏ & xanh",
+    s62_title:"Phím Mũi Tên (Di Chuyển Bàn Làm Việc)", s62_desc:"Trong khu vực 「Di chuyển bàn làm việc」, sử dụng phím mũi tên để điều khiển di chuyển trục X/Y/Z/R; kết hợp chọn trục và cài đặt bước di chuyển để điều chỉnh chính xác vị trí bàn làm việc.", s62_img:"Khu vực phím mũi tên",
+    s63_title:"Điều Khiển Quá Trình", s63_desc:"Dùng để quản lý các tham số và trạng thái điều khiển trong quá trình sản xuất.", s63_img1:"Khu vực điều khiển quá trình", s63_img2:"Cài đặt chi tiết điều khiển quá trình", s63_detail_title:"Cửa sổ cài đặt chi tiết:",
+    s63_d1:"Lấy vật liệu căn chỉnh (bảng): Điểm MARK vị trí lấy vật liệu, dùng để tính toán hoặc bù vị trí khu vực lấy vật liệu", s63_d2:"Lấy vật liệu căn chỉnh (vị trí): Mỗi vị trí lấy vật liệu, dùng để quét mã hoặc bù vị trí điểm đơn", s63_d3:"Dán vật liệu căn chỉnh (bảng): Điểm MARK vị trí dán, dùng để tính toán hoặc bù vị trí khu vực dán", s63_d4:"Dán vật liệu căn chỉnh (vị trí): Mỗi vị trí dán, dùng để bù vị trí điểm đơn", s63_d5:"Lấy vật liệu: Thực hiện thao tác lấy vật liệu (phải chọn khi sản xuất, nếu không thiết bị không hoạt động bình thường)", s63_d6:"Dán: Thực hiện thao tác dán (phải chọn khi sản xuất, nếu không thiết bị không hoạt động bình thường)", s63_d7:"Fly Capture: Tính toán bù hoặc quét mã QR mặt sau sản phẩm qua camera dưới của thiết bị", s63_d8:"Đường ray 1 vào/ra: Khi thiết bị chạy, đường ray 1 có thực hiện thao tác vào/ra bảng bình thường không (phải chọn khi sản xuất)", s63_d9:"Đường ray 2 vào/ra: Khi thiết bị chạy, đường ray 2 có thực hiện thao tác vào/ra bảng bình thường không (phải chọn khi sản xuất)",
+    s64_title:"Tùy Chọn Chức Năng", s64_desc:"Cung cấp các cấu hình chức năng bổ sung và lối vào cài đặt tùy chọn.", s64_img1:"Khu vực tùy chọn chức năng", s64_img2:"Cửa sổ cài đặt tùy chọn chức năng", s64_detail_title:"Cửa sổ cài đặt chi tiết:", s64_func_title:"Tùy Chọn Chức Năng",
+    s64_d1:"Quét mã phân loại vị trí lấy vật liệu: Quét mã QR tại vị trí lấy vật liệu để phân loại lỗi, chọn HOLD hoặc đóng gói", s64_d2:"Quét mã phân loại vị trí Fly Capture: Chụp và quét mã QR qua camera Fly để phân loại lỗi, chọn HOLD hoặc đóng gói", s64_d3:"Quét mã vị trí lấy vật liệu (phát hiện có vật liệu): Quét mã QR tại vị trí lấy để phát hiện có vật liệu không", s64_d4:"Quét mã vị trí Fly Capture (phát hiện có vật liệu): Quét mã QR tại vị trí dán để phát hiện có vật liệu không", s64_d5:"Phát hiện vật liệu Fly Capture: Kiểm tra đầu hút có vật liệu qua mẫu Fly Capture (chức năng chưa hoàn thành)", s64_d6:"Bật đóng gói: Bật MES đóng gói", s64_d7:"Phát hiện lấy vật liệu: Phát hiện đầu hút có vật liệu qua chân không (chức năng chưa hoàn thành)", s64_d8:"Phát hiện dán lại: Chống dán lại (chức năng chưa hoàn thành)", s64_d9:"Phát hiện dán: Kiểm tra có dán lệch không (chức năng chưa hoàn thành)", s64_d10:"Lưu ảnh sản xuất: Lưu ảnh chụp Fly Capture của camera dưới trong quá trình sản xuất",
+    s65_title:"Vào/Ra Vật Liệu", s65_desc:"Điều khiển quy trình vào và ra của vật liệu, quản lý thao tác nạp và lấy vật liệu.", s65_desc2:"Khu vực này có thể điều khiển thủ công việc vào/ra của đường ray.", s65_img1:"Giao diện vào/ra vật liệu", s65_img2:"Điều khiển vào/ra vật liệu",
+    s66_title:"Phân Loại Vật Liệu", s66_desc:"Dùng để quản lý phân loại và cấu hình nhận dạng vật liệu.", s66_img1:"Giao diện phân loại vật liệu", s66_img2:"Cài đặt chi tiết phân loại vật liệu", s66_func_title:"Phân Loại Vật Liệu",
+    s66_d1:"Nhãn lấy vật liệu: Nhấn để chuyển đổi có lấy vật liệu ở trạng thái hiện tại không", s66_d2:"Trạng thái vật liệu: Nhập mã lỗi hoặc trạng thái sản phẩm vào cột này, kết hợp với mục 4 để tạo tổ hợp (xem chi tiết trong MES)", s66_d3:"Số lượng đóng gói: Khi bật chế độ đóng gói, cần nhập số lượng đóng gói tương ứng để đóng gói hoặc bổ sung vật liệu", s66_d4:"Chế độ MES: Thay đổi các chế độ MES khác nhau kết hợp với mục 3 để phân loại lỗi, chọn HOLD hoặc đóng gói (xem chi tiết trong MES)",
+    s67_title:"Cài Đặt Tham Số", s67_img1:"Giao diện cài đặt tham số", s67_img2:"Cài đặt tham số - Tốc độ/Trễ", s67_img3:"Chi tiết cài đặt tham số",
+    s67_d1:"Dữ liệu vị trí lấy vật liệu: Có thể thay đổi tọa độ tổng thể của mỗi đầu hút khi lấy vật liệu (xem chi tiết trong Điều Chỉnh Vị Trí)", s67_d2:"Dữ liệu vị trí dán: Có thể thay đổi tọa độ tổng thể của mỗi đầu hút khi dán (xem chi tiết trong Điều Chỉnh Vị Trí)", s67_d3:"Dữ liệu tốc độ: Có thể thay đổi tốc độ trục X/Y/Z/T khi sản xuất (không tùy tiện điều chỉnh, dưới đây là tham số gốc)", s67_d4:"Dữ liệu trễ: Có thể sửa đổi độ trễ kích hoạt của chuyển động trục hoặc cảm biến tương ứng với mỗi thao tác",
+    step8:"Danh Sách Linh Kiện Dễ Hư Hại",
+    s8_th1:"STT", s8_th2:"Tên Linh Kiện", s8_th3:"Quy Cách",
+    step9:"Sách Tay Bảo Dưỡng Thiết Bị",
+    s91_title:"Lời Mở Đầu",
+    s92_title:"Lưu Ý Bảo Dưỡng",
+    s93_title:"Chuẩn Bị",
+    s94_title:"4.1 Trục X",
+    s95_title:"4.2 Trục Y",
+    s96_title:"4.3 Cụm Đầu Dán",
+    s97_title:"4.4 Ray Truyền",
+    s98_title:"4.5 Camera CCD Dưới",
+    s99_title:"4.6 Máy Tính Công Nghiệp",
+    s910_title:"4.7 Điện/Khí",
+    s911_title:"4.8 Vỏ Ngoài",
+    step10:"Sách Tay Driver",
+    s101_title:"Mã LED",
+    s102_title:"Khắc Phục Lỗi",
+    s10_th1:"Văn Bản", s10_th2:"Định Nghĩa", s10_th3:"Loại",
+    s10_th4:"Mã", s10_th5:"Tên Lỗi", s10_th6:"Nguyên Nhân", s10_th7:"Xử Lý",
+    back_top:"Trở về đầu trang"
+  }
+};
+
+function switchLang(lang) {
+  document.documentElement.lang = lang === 'vi' ? 'vi-VN' : 'zh-CN';
+  document.title = lang === 'vi'
+    ? 'SOP Vận Hành Máy Chuyển Tray Skyworth'
+    : '创为转Tray机操作SOP';
+  document.querySelectorAll('.lang-toggle button').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-alt]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-alt');
+    if (i18n[lang] && i18n[lang][key]) el.alt = i18n[lang][key];
+  });
+  var bt = document.querySelector('.back-top');
+  if (bt && i18n[lang].back_top) bt.title = i18n[lang].back_top;
+  try { localStorage.setItem('sop-lang', lang); } catch(e) {}
+}
+
+function copyPwd(btn, text) {
+  var currentLang = (document.querySelector('.lang-toggle button.active') || {}).getAttribute('data-lang') || 'zh';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      btn.classList.add('copied');
+      btn.textContent = currentLang === 'vi' ? 'Đã sao chép!' : '已复制!';
+      setTimeout(function() {
+        btn.classList.remove('copied');
+        btn.textContent = i18n[currentLang].copy;
+      }, 1500);
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    btn.classList.add('copied');
+    btn.textContent = currentLang === 'vi' ? 'Đã sao chép!' : '已复制!';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.textContent = i18n[currentLang].copy;
+    }, 1500);
+  }
+}
+
+(function() {
+  var saved = null;
+  try { saved = localStorage.getItem('sop-lang'); } catch(e) {}
+  switchLang(saved || 'zh');
+})();
+
+function openModal(img) {
+  document.getElementById('modalImg').src = img.src;
+  document.getElementById('imageModal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('imageModal').classList.remove('active');
+}
+document.getElementById('imageModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+var backTop = document.querySelector('.back-top');
+window.addEventListener('scroll', function() {
+  backTop.classList.toggle('visible', window.scrollY > 400);
+});
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Sidebar scroll tracking - include sub-sections
+var allSections = document.querySelectorAll('.step-card, .sub-section');
+var navLinks = document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll', function() {
+  var current = '';
+  allSections.forEach(function(s) {
+    if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
+  });
+  navLinks.forEach(function(a) {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+
+// Collapsible sub-sections (event delegation)
+document.addEventListener('click', function(e) {
+  var subHeader = e.target.closest('.sub-header');
+  if (subHeader) {
+    var subSec = subHeader.closest('.sub-section');
+    if (subSec) subSec.classList.toggle('collapsed');
+    e.stopPropagation();
+    return;
+  }
+});
+
+// Sidebar tree toggle
+function toggleNav(el) {
+  var parent = el.closest('.has-children');
+  if (parent) parent.classList.toggle('collapsed');
+}
+
+navLinks.forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    var t = document.querySelector(this.getAttribute('href'));
+    if (t) window.scrollTo({ top: t.offsetTop - 20, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
