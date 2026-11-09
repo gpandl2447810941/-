@@ -265,6 +265,11 @@
   .sub-section.collapsed .collapse-arrow { transform: rotate(-90deg); }
   .sub-section.collapsed > *:not(.sub-header) { display: none !important; }
   .sub-section.collapsed .sub-header { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .tpl-heading { margin: 28px 0 16px; font-size: 1rem; font-weight: 700; color: var(--primary); border-top: 2px dashed var(--border); padding-top: 20px; }
+  .tpl-fig { margin: 0 0 20px; }
+  .tpl-fig figcaption { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: var(--text); line-height: 1.5; }
+  .tpl-fig .fig-imgs { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tpl-fig .fig-imgs img { max-width: 100%; max-height: 420px; width: auto; border: 1px solid var(--border); border-radius: 8px; cursor: zoom-in; }
 
 
   /* Parts table for step 8 */
@@ -384,18 +389,7 @@
           <li><a href="#s102"><span class="num">2</span><span data-i18n="s102_nav">故障排除方法</span></a></li>
         </ul>
       </li>
-      <li class="has-children">
-        <div class="nav-row">
-          <a href="#step11"><span class="num">11</span><span data-i18n="step11">模板制作教程</span></a>
-          <span class="nav-toggle" onclick="toggleNav(this)">▼</span>
-        </div>
-        <ul class="nav-children">
-          <li><a href="#s111"><span class="num">1</span><span data-i18n="s111_nav">学习取料点位</span></a></li>
-          <li><a href="#s112"><span class="num">2</span><span data-i18n="s112_nav">生成模板与拍照设置</span></a></li>
-          <li><a href="#s113"><span class="num">3</span><span data-i18n="s113_nav">掩膜与模板参数</span></a></li>
-          <li><a href="#s114"><span class="num">4</span><span data-i18n="s114_nav">学习模板与验证</span></a></li>
-        </ul>
-      </li>
+
     </ul>
   </nav>
 
@@ -727,6 +721,60 @@
           <div class="image-item"><img src="images/docx_img_12.png" data-i18n-alt="s67_img2" alt="参数设置-速度/延时" onclick="openModal(this)"></div>
           <div class="image-item"><img src="images/docx_img_13.png" data-i18n-alt="s67_img3" alt="参数设置详情" onclick="openModal(this)"></div>
         </div>
+        <h4 class="tpl-heading" data-i18n="tpl_title">模板学习界面</h4>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l1">1. 学习对象选择取料点位</figcaption>
+          <div class="fig-imgs"><img src="images/template_p1_img1.png" alt="取料点位界面" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l2">2. 位置类型选择需要做模板的工作头</figcaption>
+          <div class="fig-imgs"><img src="images/template_p1_img2.png" alt="位置类型" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l3">3. 点击小圆圈，会出现位置坐标，然后点击取料按钮，吸一颗料上来</figcaption>
+          <div class="fig-imgs"><img src="images/template_p1_img3.png" alt="位置坐标与取料" onclick="openModal(this)"><img src="images/template_p1_img4.png" alt="取料按钮" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l4">4. 学习对象选择取料模板，模板对象选择飞拍矫正</figcaption>
+          <div class="fig-imgs"><img src="images/template_p1_img5.png" alt="取料模板" onclick="openModal(this)"><img src="images/template_p1_img6.png" alt="飞拍矫正" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l5">5. 选择要做模板的工作头</figcaption>
+          <figcaption data-i18n="tpl_l6">6. 选择模板序号点至模板位（模板序号是几就是吸头几）</figcaption>
+          <figcaption data-i18n="tpl_l7">7. 识别方法选择边缘匹配</figcaption>
+          <figcaption data-i18n="tpl_l8">8. 点击生成模板</figcaption>
+          <figcaption data-i18n="tpl_l9">9. 点击模板设置</figcaption>
+          <figcaption data-i18n="tpl_l10">10. 点击拍照设置</figcaption>
+          <div class="fig-imgs"><img src="images/template_p2_img1.png" alt="模板设置总览" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l11">11. 调整曝光和增益（下相机默认为0），然后点击触发取图，然后点确定、取消</figcaption>
+          <div class="fig-imgs"><img src="images/template_p2_img3.png" alt="拍照设置面板" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l12">12. 右键屏幕，勾选原图显示、鼠标框选，点确定</figcaption>
+          <div class="fig-imgs"><img src="images/template_p2_img2.png" alt="原图显示与框选" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l13">13. 框选出需要做模板的地方</figcaption>
+          <div class="fig-imgs"><img src="images/template_p3_img1.png" alt="框选模板区域" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l14">14. 点击模板掩膜，并涂出需要识别的区域</figcaption>
+          <div class="fig-imgs"><img src="images/template_p3_img2.png" alt="模板掩膜" onclick="openModal(this)"><img src="images/template_p3_img3.png" alt="涂抹识别区域" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l15">15. 涂完掩膜后点击模板参数、检测参数，按照图片填写，最后点击学习模板</figcaption>
+          <div class="fig-imgs"><img src="images/template_p3_img4.png" alt="检测参数" onclick="openModal(this)"><img src="images/template_p3_img5.png" alt="学习模板" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l16">16. 学习模板完成之后，勾选全图检测，并且匹配模板</figcaption>
+          <div class="fig-imgs"><img src="images/template_p4_img1.png" alt="全图检测" onclick="openModal(this)"></div>
+        </figure>
+        <figure class="tpl-fig">
+          <figcaption data-i18n="tpl_l17">17. 模板正常显示后可以点击至校正位，图像十字会与模板十字肉眼重叠，说明模板没有问题了</figcaption>
+          <div class="fig-imgs"><img src="images/template_p4_img2.png" alt="校正位验证" onclick="openModal(this)"></div>
+        </figure>
       </div>
 
     </section>
@@ -1002,80 +1050,6 @@
 
     </section>
 
-    <!-- Step 11 -->
-    <section class="step-card" id="step11">
-      <div class="step-header">
-        <div class="step-number">11</div>
-        <div class="step-title" data-i18n="step11">模板制作教程</div>
-      </div>
-
-      <div class="sub-section" id="s111">
-        <div class="sub-header"><div class="sub-badge">1</div><div class="sub-title" data-i18n="s111_title">学习取料点位</div><span class="collapse-arrow">▼</span></div>
-        <ul class="instructions">
-          <li data-i18n="s111_l1">学习对象选择取料点位</li>
-          <li data-i18n="s111_l2">位置类型选择需要做模板的工作头</li>
-          <li data-i18n="s111_l3">点击小圆圈，会出现位置坐标，然后点击取料按钮，吸一颗料上来</li>
-          <li data-i18n="s111_l4">学习对象选择取料模板，模板对象选择飞拍矫正</li>
-        </ul>
-        <div class="image-gallery">
-          <div class="image-item"><img src="images/template_p1_img1.png" alt="取料点位界面" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p1_img2.png" alt="学习对象选择" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p1_img3.png" alt="位置类型" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p1_img4.png" alt="位置坐标" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p1_img5.png" alt="取料按钮" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p1_img6.png" alt="飞拍矫正" onclick="openModal(this)"></div>
-        </div>
-      </div>
-
-      <div class="sub-section" id="s112">
-        <div class="sub-header"><div class="sub-badge">2</div><div class="sub-title" data-i18n="s112_title">生成模板与拍照设置</div><span class="collapse-arrow">▼</span></div>
-        <ul class="instructions">
-          <li data-i18n="s112_l1">选择要做模板的工作头</li>
-          <li data-i18n="s112_l2">选择模板序号点至模板位（模板序号是几就是吸头几）</li>
-          <li data-i18n="s112_l3">识别方法选择边缘匹配</li>
-          <li data-i18n="s112_l4">点击生成模板</li>
-          <li data-i18n="s112_l5">点击模板设置</li>
-          <li data-i18n="s112_l6">点击拍照设置</li>
-          <li data-i18n="s112_l7">调整曝光和增益（下相机默认为0），然后点击触发取图，然后点确定、取消</li>
-          <li data-i18n="s112_l8">右键屏幕，勾选原图显示、鼠标框选，点确定</li>
-        </ul>
-        <div class="image-gallery">
-          <div class="image-item"><img src="images/template_p2_img1.png" alt="模板设置界面" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p2_img2.png" alt="拍照设置界面" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p2_img3.png" alt="右键菜单" onclick="openModal(this)"></div>
-        </div>
-      </div>
-
-      <div class="sub-section" id="s113">
-        <div class="sub-header"><div class="sub-badge">3</div><div class="sub-title" data-i18n="s113_title">掩膜与模板参数</div><span class="collapse-arrow">▼</span></div>
-        <ul class="instructions">
-          <li data-i18n="s113_l1">框选出需要做模板的地方并涂出需要识别的区域</li>
-          <li data-i18n="s113_l2">点击模板掩膜</li>
-          <li data-i18n="s113_l3">涂完掩膜后点击模板参数、检测参数，按照图片填写，最后点击学习模板</li>
-        </ul>
-        <div class="image-gallery">
-          <div class="image-item"><img src="images/template_p3_img1.png" alt="框选模板区域" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p3_img2.png" alt="模板掩膜" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p3_img3.png" alt="模板参数" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p3_img4.png" alt="检测参数" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p3_img5.png" alt="学习模板" onclick="openModal(this)"></div>
-        </div>
-      </div>
-
-      <div class="sub-section" id="s114">
-        <div class="sub-header"><div class="sub-badge">4</div><div class="sub-title" data-i18n="s114_title">学习模板与验证</div><span class="collapse-arrow">▼</span></div>
-        <ul class="instructions">
-          <li data-i18n="s114_l1">学习模板完成之后，勾选全图检测，并且匹配模板</li>
-          <li data-i18n="s114_l2">模板正常显示后可以点击至校正位，图像十字会与模板十字肉眼重叠，说明模板没有问题了</li>
-        </ul>
-        <div class="image-gallery">
-          <div class="image-item"><img src="images/template_p4_img1.png" alt="全图检测" onclick="openModal(this)"></div>
-          <div class="image-item"><img src="images/template_p4_img2.png" alt="校正位验证" onclick="openModal(this)"></div>
-        </div>
-      </div>
-
-    </section>
-
   </main>
 </div>
 
@@ -1201,32 +1175,24 @@ var i18n = {
     s910_title:"4.7 电控/气路",
     s911_title:"4.8 外壳清洁",
     step10:"驱动器手册",
-    step11:"模板制作教程",
-    s111_nav:"学习取料点位",
-    s112_nav:"生成模板与拍照设置",
-    s113_nav:"掩膜与模板参数",
-    s114_nav:"学习模板与验证",
-    s111_title:"学习取料点位",
-    s111_l1:"学习对象选择取料点位",
-    s111_l2:"位置类型选择需要做模板的工作头",
-    s111_l3:"点击小圆圈，会出现位置坐标，然后点击取料按钮，吸一颗料上来",
-    s111_l4:"学习对象选择取料模板，模板对象选择飞拍矫正",
-    s112_title:"生成模板与拍照设置",
-    s112_l1:"选择要做模板的工作头",
-    s112_l2:"选择模板序号点至模板位（模板序号是几就是吸头几）",
-    s112_l3:"识别方法选择边缘匹配",
-    s112_l4:"点击生成模板",
-    s112_l5:"点击模板设置",
-    s112_l6:"点击拍照设置",
-    s112_l7:"调整曝光和增益（下相机默认为0），然后点击触发取图，然后点确定、取消",
-    s112_l8:"右键屏幕，勾选原图显示、鼠标框选，点确定",
-    s113_title:"掩膜与模板参数",
-    s113_l1:"框选出需要做模板的地方并涂出需要识别的区域",
-    s113_l2:"点击模板掩膜",
-    s113_l3:"涂完掩膜后点击模板参数、检测参数，按照图片填写，最后点击学习模板",
-    s114_title:"学习模板与验证",
-    s114_l1:"学习模板完成之后，勾选全图检测，并且匹配模板",
-    s114_l2:"模板正常显示后可以点击至校正位，图像十字会与模板十字肉眼重叠，说明模板没有问题了",
+    tpl_title:"模板学习界面",
+    tpl_l1:"1. 学习对象选择取料点位",
+    tpl_l2:"2. 位置类型选择需要做模板的工作头",
+    tpl_l3:"3. 点击小圆圈，会出现位置坐标，然后点击取料按钮，吸一颗料上来",
+    tpl_l4:"4. 学习对象选择取料模板，模板对象选择飞拍矫正",
+    tpl_l5:"5. 选择要做模板的工作头",
+    tpl_l6:"6. 选择模板序号点至模板位（模板序号是几就是吸头几）",
+    tpl_l7:"7. 识别方法选择边缘匹配",
+    tpl_l8:"8. 点击生成模板",
+    tpl_l9:"9. 点击模板设置",
+    tpl_l10:"10. 点击拍照设置",
+    tpl_l11:"11. 调整曝光和增益（下相机默认为0），然后点击触发取图，然后点确定、取消",
+    tpl_l12:"12. 右键屏幕，勾选原图显示、鼠标框选，点确定",
+    tpl_l13:"13. 框选出需要做模板的地方",
+    tpl_l14:"14. 点击模板掩膜，并涂出需要识别的区域",
+    tpl_l15:"15. 涂完掩膜后点击模板参数、检测参数，按照图片填写，最后点击学习模板",
+    tpl_l16:"16. 学习模板完成之后，勾选全图检测，并且匹配模板",
+    tpl_l17:"17. 模板正常显示后可以点击至校正位，图像十字会与模板十字肉眼重叠，说明模板没有问题了",
     s101_title:"LED 显示代码",
     s102_title:"常见故障排除",
     s10_th1:"显示文本", s10_th2:"定义", s10_th3:"类型",
@@ -1343,32 +1309,24 @@ var i18n = {
     s910_title:"4.7 Điện/Khí",
     s911_title:"4.8 Vỏ Ngoài",
     step10:"Sách Tay Driver",
-    step11:"Hướng dẫn làm mẫu",
-    s111_nav:"Học điểm lấy vật liệu",
-    s112_nav:"Tạo mẫu và cài đặt chụp ảnh",
-    s113_nav:"Mặt nạ và tham số mẫu",
-    s114_nav:"Học mẫu và kiểm tra",
-    s111_title:"Học điểm lấy vật liệu",
-    s111_l1:"Đối tượng học chọn điểm lấy vật liệu",
-    s111_l2:"Loại vị trí: chọn trục làm việc cần làm mẫu",
-    s111_l3:"Nhấp vào hình tròn nhỏ sẽ hiện tọa độ vị trí, sau đó nhấp nút lấy vật liệu để hút một vật liệu lên",
-    s111_l4:"Đối tượng học chọn mẫu lấy vật liệu, đối tượng mẫu chọn hiệu chỉnh fly-shot (chụp bay)",
-    s112_title:"Tạo mẫu và cài đặt chụp ảnh",
-    s112_l1:"Chọn trục làm việc cần làm mẫu",
-    s112_l2:"Chọn số thứ tự mẫu và di chuyển đến vị trí mẫu (số thứ tự mẫu là mấy thì đầu hút là bấy nhiêu)",
-    s112_l3:"Phương pháp nhận dạng chọn khớp biên (edge matching)",
-    s112_l4:"Nhấp vào Tạo mẫu",
-    s112_l5:"Nhấp vào Cài đặt mẫu",
-    s112_l6:"Nhấp vào Cài đặt chụp ảnh",
-    s112_l7:"Điều chỉnh độ phơi sáng và độ khuếch đại (camera dưới mặc định là 0), sau đó nhấp Lấy ảnh kích hoạt, rồi nhấp Xác nhận, Hủy",
-    s112_l8:"Nhấp chuột phải vào màn hình, tích chọn Hiển thị ảnh gốc và Khung chọn chuột, nhấp Xác nhận",
-    s113_title:"Mặt nạ mẫu và tham số mẫu",
-    s113_l1:"Khung chọn vùng cần làm mẫu và tô ra vùng cần nhận dạng",
-    s113_l2:"Nhấp vào Mặt nạ mẫu",
-    s113_l3:"Sau khi tô xong mặt nạ, nhấp Tham số mẫu, Tham số phát hiện, điền theo hình ảnh, cuối cùng nhấp Học mẫu",
-    s114_title:"Học mẫu và kiểm tra",
-    s114_l1:"Sau khi học mẫu xong, tích chọn Phát hiện toàn ảnh và khớp mẫu",
-    s114_l2:"Sau khi mẫu hiển thị bình thường, có thể nhấp đến vị trí hiệu chỉnh; chữ thập trên ảnh trùng với chữ thập mẫu (nhìn bằng mắt thường) nghĩa là mẫu đã đạt",
+    tpl_title:"Giao diện học mẫu",
+    tpl_l1:"1. Đối tượng học chọn điểm lấy vật liệu",
+    tpl_l2:"2. Loại vị trí: chọn trục làm việc cần làm mẫu",
+    tpl_l3:"3. Nhấp vào hình tròn nhỏ sẽ hiện tọa độ vị trí, sau đó nhấp nút lấy vật liệu để hút một vật liệu lên",
+    tpl_l4:"4. Đối tượng học chọn mẫu lấy vật liệu, đối tượng mẫu chọn hiệu chỉnh fly-shot (chụp bay)",
+    tpl_l5:"5. Chọn trục làm việc cần làm mẫu",
+    tpl_l6:"6. Chọn số thứ tự mẫu và di chuyển đến vị trí mẫu (số thứ tự mẫu là mấy thì đầu hút là bấy nhiêu)",
+    tpl_l7:"7. Phương pháp nhận dạng chọn khớp biên (edge matching)",
+    tpl_l8:"8. Nhấp vào Tạo mẫu",
+    tpl_l9:"9. Nhấp vào Cài đặt mẫu",
+    tpl_l10:"10. Nhấp vào Cài đặt chụp ảnh",
+    tpl_l11:"11. Điều chỉnh độ phơi sáng và độ khuếch đại (camera dưới mặc định là 0), sau đó nhấp Lấy ảnh kích hoạt, rồi nhấp Xác nhận, Hủy",
+    tpl_l12:"12. Nhấp chuột phải vào màn hình, tích chọn Hiển thị ảnh gốc và Khung chọn chuột, nhấp Xác nhận",
+    tpl_l13:"13. Khung chọn vùng cần làm mẫu",
+    tpl_l14:"14. Nhấp vào Mặt nạ mẫu và tô ra vùng cần nhận dạng",
+    tpl_l15:"15. Sau khi tô xong mặt nạ, nhấp Tham số mẫu, Tham số phát hiện, điền theo hình ảnh, cuối cùng nhấp Học mẫu",
+    tpl_l16:"16. Sau khi học mẫu xong, tích chọn Phát hiện toàn ảnh và khớp mẫu",
+    tpl_l17:"17. Sau khi mẫu hiển thị bình thường, có thể nhấp đến vị trí hiệu chỉnh; chữ thập trên ảnh trùng với chữ thập mẫu (nhìn bằng mắt thường) nghĩa là mẫu đã đạt",
     s101_title:"Mã LED",
     s102_title:"Khắc Phục Lỗi",
     s10_th1:"Văn Bản", s10_th2:"Định Nghĩa", s10_th3:"Loại",
